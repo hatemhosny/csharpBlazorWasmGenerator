@@ -1,0 +1,45 @@
+@page "/editor"
+@using MyRunnyApp.Services
+@inject CodeExecutionService CodeService
+
+<h3>Write Your C# Code</h3>
+
+<div>
+    <textarea rows="10" cols="80" @bind="CodeInput" placeholder="Enter your C# code here..."></textarea>
+</div>
+<div>
+    <button @onclick="RunCode">Run</button>
+</div>
+
+@if (!string.IsNullOrEmpty(Result))
+{
+    <h4>Output:</h4>
+    <pre>@Result</pre>
+}
+
+@if (!string.IsNullOrEmpty(Errors))
+{
+    <h4 style="color: red;">Errors:</h4>
+    <pre style="color: red;">@Errors</pre>
+}
+
+@code {
+    private string CodeInput { get; set; } = @"using System;
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine(""Hello, World!"");
+    }
+}";
+    private string Result { get; set; } = "";
+    private string Errors { get; set; } = "";
+
+    private void RunCode()
+    {
+        var (success, output, errors) = CodeService.CompileAndRun(CodeInput);
+        Result = output;
+        Errors = errors;
+        StateHasChanged();
+    }
+}
